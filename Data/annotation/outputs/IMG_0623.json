@@ -1,0 +1,1 @@
+{"path":"/Users/zhangle/Documents/IS/tabledetection/Data/test/IMG_0623.jpg","outputs":{"object":[{"name":"row","bndbox":{"xmin":353,"ymin":1443,"xmax":2562,"ymax":1761}},{"name":"row","bndbox":{"xmin":352,"ymin":1712,"xmax":2562,"ymax":2034}}]},"time_labeled":1587630545290,"labeled":true,"size":{"width":3024,"height":4032,"depth":3}}
