@@ -24,6 +24,6 @@ symg = cv2.cvtColor(sym, cv2.COLOR_BGR2GRAY)
 symc = cv2.Canny(symg, 100, 127)
 
 # 3. threthod 
-
+i
 
 
