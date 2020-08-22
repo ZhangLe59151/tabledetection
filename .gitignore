@@ -1,4 +1,4 @@
 # ignore files relecvent to data
-data/testDate/
+data/testData/
 data/.DS_Store
 .DS_Store

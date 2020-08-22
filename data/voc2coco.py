@@ -18,7 +18,7 @@ class DEBUG_LEVEL(Enum):
 
 DATA_VERSION = "1.0"
 DATA_PATH = "data/testData/"
-DEBUG_STATUS = DEBUG_LEVEL.DEBUG.value
+DEBUG_STATUS = DEBUG_LEVEL.LOG.value
 
 # function to get param for bbox
 def getBbox(filename):
@@ -119,7 +119,7 @@ def generateCoCoDataset():
       annotations.append(annotation)
       licenses.append(licensee)
       if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
-        print(file + 'has been added into annotation json file...')
+        print(file + ' has been added into annotation json file...')
       if  (DEBUG_STATUS == DEBUG_LEVEL.DEBUG.value):
         temp = {}
         temp["info"] = infos
