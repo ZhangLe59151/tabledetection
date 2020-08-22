@@ -6,19 +6,25 @@
 import xml.dom.minidom
 from enum import Enum
 import datetime
-import cv2
+import cv2, os, re
 
 class nodeType(Enum):
   ATTRIBUTE_NODE = 'ATTRIBUTE_NODE'
 
+class DEBUG_LEVEL(Enum):
+  RUNTIME = 'RUNTIME',
+  DEBUG = 'DEBUG',
+  LOG = 'LOG'
+
 DATA_VERSION = "1.0"
 DATA_PATH = "data/testData/"
+DEBUG_STATUS = DEBUG_LEVEL.DEBUG.value
 
 # function to get param for bbox
 def getBbox(filename):
   # open the xml document
   cfilename = "";
-  dom = xml.dom.minidom.parse(DATA_PATH + 'cTDaR_t00000.xml')
+  dom = xml.dom.minidom.parse(DATA_PATH + filename)
 
   # get the element
   root = dom.documentElement
@@ -29,9 +35,16 @@ def getBbox(filename):
   Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
 
   # get x, y, width, height
+  '''
   x = int(Coord.split(' ')[3].split(',')[0])  # to do - check the max of width and height
   y = int(Coord.split(' ')[3].split(',')[1])
-  width = int(Coord.split(' ')[1].split(',')[0]) - x
+  width = int(Coord.split(' ')[1].split(',')[0]) - x 
+  height = y - int(Coord.split(' ')[1].split(',')[1])
+  '''
+
+  x = min([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])])
+  y = max([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])])
+  width = max([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])]) - x
   height = y - int(Coord.split(' ')[1].split(',')[1])
 
   data = {}
@@ -41,7 +54,7 @@ def getBbox(filename):
   data["height"] = height
   return data
 
-def createCocoItem(filename, bbox):
+def createCocoItem(imgfilename):
   # generate info 
   info = {}
   info["year"] = 2020
@@ -53,10 +66,11 @@ def createCocoItem(filename, bbox):
 
   # generate image
   image = {}
+  imgsize = getImgSize(imgfilename)
   image["id"] = 1
-  image["width"] = getImgSize('cTDaR_t00000.jpg')["width"]   # to-do optimize 
-  image["height"] = getImgSize('cTDaR_t00000.jpg')["height"]
-  image["filename"] = filename
+  image["width"] = imgsize["width"]   # to-do optimize 
+  image["height"] = imgsize["height"]
+  image["filename"] = imgfilename
   image["license"] = 1
   image["flickr_url"] = ""
   image["coco_url"] = ""
@@ -65,10 +79,12 @@ def createCocoItem(filename, bbox):
   # generate license
   licensee = {}
   licensee["id"] = 1
-  licensee["name"] = filename
+  licensee["name"] = imgfilename
   licensee["url"] = ""
 
   # generate annotation
+  annotationFilename = imgfilename.replace('.jpg', '.xml')
+  bbox = getBbox(annotationFilename)
   annotation = {}
   annotation["id"] = 1
   annotation["image_id"] = 1
@@ -87,19 +103,40 @@ def getImgSize(filename):
   data["height"] = height
   return data
 
-data = {}
-infos = []
-images = []
-annotations = []
-licenses = []
-(info, image, annotation, licensee) = createCocoItem('',getBbox(''))
-infos.append(info)
-images.append(image)
-annotations.append(annotation)
-licenses.append(licensee)
-data["info"]: infos
-data["images"] = images
-data["annotations"] = annotations
-data["licenses"] = licenses
+def generateCoCoDataset():
+  data = {}
+  infos = []
+  images = []
+  annotations = []
+  licenses = []
+  files= os.listdir(DATA_PATH)
+  for file in files:
+    imgfile = re.match(".*.jpg$", file.lower())
+    if (imgfile):
+      (info, image, annotation, licensee) = createCocoItem(file)
+      infos.append(info)
+      images.append(image)
+      annotations.append(annotation)
+      licenses.append(licensee)
+      if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
+        print(file + 'has been added into annotation json file...')
+      if  (DEBUG_STATUS == DEBUG_LEVEL.DEBUG.value):
+        temp = {}
+        temp["info"] = infos
+        temp["images"] = images
+        temp["annotations"] = annotations
+        temp["licenses"] = licenses
+        print(file + ':')
+        print(temp)
+  # (info, image, annotation, licensee) = createCocoItem('')
+  # infos.append(info)
+  # images.append(image)
+  # annotations.append(annotation)
+  # licenses.append(licensee)
+  data["info"] = infos
+  data["images"] = images
+  data["annotations"] = annotations
+  data["licenses"] = licenses
+  return data
 
-print(data)
+generateCoCoDataset()
