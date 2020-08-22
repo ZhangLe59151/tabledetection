@@ -29,10 +29,10 @@ def getBbox(filename):
   Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
 
   # get x, y, width, height
-  x = int(Coord.split(' ')[3].split(',')[0])
+  x = int(Coord.split(' ')[3].split(',')[0])  # to do - check the max of width and height
   y = int(Coord.split(' ')[3].split(',')[1])
   width = int(Coord.split(' ')[1].split(',')[0]) - x
-  height = y -  int(Coord.split(' ')[1].split(',')[1])
+  height = y - int(Coord.split(' ')[1].split(',')[1])
 
   data = {}
   data["x"] = x
@@ -54,7 +54,7 @@ def createCocoItem(filename, bbox):
   # generate image
   image = {}
   image["id"] = 1
-  image["width"] = getImgSize('cTDaR_t00000.jpg')["width"]
+  image["width"] = getImgSize('cTDaR_t00000.jpg')["width"]   # to-do optimize 
   image["height"] = getImgSize('cTDaR_t00000.jpg')["height"]
   image["filename"] = filename
   image["license"] = 1
@@ -81,7 +81,7 @@ def createCocoItem(filename, bbox):
 
 def getImgSize(filename):
   img = cv2.imread(DATA_PATH + filename)
-  (width, height, depth) = img.shape
+  (height, width, depth) = img.shape
   data = {}
   data["width"] = width
   data["height"] = height
