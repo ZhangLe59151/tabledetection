@@ -1,2 +1,4 @@
-# ignore data/testDate/ 
+# ignore files relecvent to data
 data/testDate/
+data/.DS_Store
+.DS_Store
