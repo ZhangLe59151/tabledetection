@@ -20,7 +20,9 @@ DATA_VERSION = "1.0"
 DATA_PATH = "data/testData/"
 FILE_PATH = "data/"
 COCODatasetFileName = 'coco.json'
-DEBUG_STATUS = DEBUG_LEVEL.LOG.value
+DEBUG_STATUS = DEBUG_LEVEL.DEBUG.value
+AID = 0
+annotations = []
 
 # function to get param for bbox
 def getBbox(filename):
@@ -33,43 +35,29 @@ def getBbox(filename):
   if root.hasAttribute("filename"):
     cfilename = root.getAttribute("filename")
 
-  table = root.getElementsByTagName("table")[0]
-  Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
+  tables = root.getElementsByTagName("table")
+  dataList = []
+  for table in tables:
+    Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
+    # get x, y, width, height
+    x = min([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])])
+    y = min([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])])
+    width = max([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])]) - x
+    height = max([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])]) - y
+    data = {}
+    data["x"] = x
+    data["y"] = y
+    data["width"] = width
+    data["height"] = height
+    dataList.append(data)
+  return dataList
 
-  # get x, y, width, height
-  '''
-  x = int(Coord.split(' ')[3].split(',')[0])  # to do - check the max of width and height
-  y = int(Coord.split(' ')[3].split(',')[1])
-  width = int(Coord.split(' ')[1].split(',')[0]) - x 
-  height = y - int(Coord.split(' ')[1].split(',')[1])
-  '''
-
-  x = min([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])])
-  y = max([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])])
-  width = max([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])]) - x
-  height = y - int(Coord.split(' ')[1].split(',')[1])
-
-  data = {}
-  data["x"] = x
-  data["y"] = y
-  data["width"] = width
-  data["height"] = height
-  return data
-
-def createCocoItem(imgfilename):
-  # generate info 
-  info = {}
-  info["year"] = 2020
-  info["version"] = DATA_VERSION
-  info["description"] = "description"
-  info["contributor"] = "contributor"
-  info["url"] = ""
-  info["date_created"] = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-
+def createCocoItem(imgfilename, id):
+  global AID
   # generate image
   image = {}
   imgsize = getImgSize(imgfilename)
-  image["id"] = 1
+  image["id"] = id
   image["width"] = imgsize["width"]   # to-do optimize 
   image["height"] = imgsize["height"]
   image["filename"] = imgfilename
@@ -78,24 +66,20 @@ def createCocoItem(imgfilename):
   image["coco_url"] = ""
   image["date_captured"] = time.strftime('%Y-%m-%d',time.localtime(time.time()))
 
-  # generate license
-  licensee = {}
-  licensee["id"] = 1
-  licensee["name"] = imgfilename
-  licensee["url"] = ""
-
   # generate annotation
   annotationFilename = imgfilename.replace('.jpg', '.xml')
-  bbox = getBbox(annotationFilename)
-  annotation = {}
-  annotation["id"] = 1
-  annotation["image_id"] = 1
-  annotation["category_id"] = 0
-  annotation["area"] = 1
-  annotation["bbox"] = [bbox["x"], bbox["y"], bbox["width"], bbox["height"]]
-  annotation["iscrowd"] = 0
-
-  return(info, image, annotation, licensee)
+  bboxList = getBbox(annotationFilename)
+  for (index, bbox) in enumerate(bboxList):
+    annotation = {}
+    annotation["id"] = AID
+    AID = AID + 1
+    annotation["image_id"] = id
+    annotation["category_id"] = 0
+    annotation["area"] = 1
+    annotation["bbox"] = [bbox["x"], bbox["y"], bbox["width"], bbox["height"]]
+    annotation["iscrowd"] = 0
+    annotations.append(annotation)
+  return(image)
 
 def getImgSize(filename):
   img = cv2.imread(DATA_PATH + filename)
@@ -107,27 +91,37 @@ def getImgSize(filename):
 
 def generateCoCoDataset():
   data = {}
-  infos = []
+  # generate info 
+  info = {}
+  info["year"] = 2020
+  info["version"] = DATA_VERSION
+  info["description"] = "description"
+  info["contributor"] = "contributor"
+  info["url"] = ""
+  info["date_created"] = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+
+  # generate category
+  categories = []
+  category = {}
+  category["id"] = 0
+  category["name"] = "table"
+  category["supercategory"] = "table"
+  categories.append(category)
+
   images = []
-  annotations = []
-  licenses = []
+
   files= os.listdir(DATA_PATH)
-  for file in files:
+  for (index,file) in enumerate(files):
     imgfile = re.match(".*.jpg$", file.lower())
     if (imgfile):
-      (info, image, annotation, licensee) = createCocoItem(file)
-      infos.append(info)
+      (image) = createCocoItem(file, index)
       images.append(image)
-      annotations.append(annotation)
-      licenses.append(licensee)
+      
       if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
         print(file + ' has been added into annotation json file...')
       if  (DEBUG_STATUS == DEBUG_LEVEL.DEBUG.value):
         temp = {}
-        temp["info"] = infos
         temp["images"] = images
-        temp["annotations"] = annotations
-        temp["licenses"] = licenses
         print(file + ':')
         print(temp)
   # (info, image, annotation, licensee) = createCocoItem('')
@@ -135,14 +129,14 @@ def generateCoCoDataset():
   # images.append(image)
   # annotations.append(annotation)
   # licenses.append(licensee)
-  data["info"] = infos
+  data["info"] = info
   data["images"] = images
   data["annotations"] = annotations
-  data["licenses"] = licenses
+  data["categories"] = categories
   writeToFile(data)
 
 def writeToFile(data):
-  with open(FILE_PATH + COCODatasetFileName, 'a') as f:
+  with open(FILE_PATH + COCODatasetFileName, 'w') as f:
     json.dump(data, f)
     if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
       print('data has been written into file : ' + FILE_PATH + COCODatasetFileName)
