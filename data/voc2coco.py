@@ -27,6 +27,8 @@ annotations = []
 # function to get param for bbox
 def getBbox(filename):
   # open the xml document
+  if  (DEBUG_STATUS == DEBUG_LEVEL.DEBUG.value):
+    print("find name of getBbox: " + filename)
   cfilename = "";
   dom = xml.dom.minidom.parse(DATA_PATH + filename)
 
