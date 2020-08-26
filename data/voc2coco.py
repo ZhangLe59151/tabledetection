@@ -71,7 +71,7 @@ def createCocoItem(imgfilename, id):
   image["date_captured"] = time.strftime('%Y-%m-%d',time.localtime(time.time()))
 
   # generate annotation
-  annotationFilename = imgfilename.replace('.jpg', '.xml')
+  annotationFilename = imgfilename.split('.')[0]+".xml"
   bboxList = getBbox(annotationFilename)
   for (index, bbox) in enumerate(bboxList):
     annotation = {}
