@@ -8,8 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-FILE_PATH = "data/"
-DATA_PATH = "data/testData/"
+# FILE_PATH = "data/"
+FILE_PATH = "/home/hungnguyen/ZhangLe/tabledetection/data/"
+# DATA_PATH = "data/testData/"
+DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/training/TRACKA/ground_truth/"
 FILENAME = "coco.json"
 
 def plt_img_boxes(src_img, obj_boxes, font_width=None, plot_seq_number=False, names=None):
