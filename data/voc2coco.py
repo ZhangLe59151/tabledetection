@@ -117,7 +117,7 @@ def generateCoCoDataset():
   files= os.listdir(DATA_PATH)
   for (index,file) in enumerate(files):
     imgfile = re.match(".*.xml$", file.lower())
-    if (!imgfile):
+    if (imgfile == None):
       (image) = createCocoItem(file, index)
       images.append(image)
       count = 0;
