@@ -17,8 +17,10 @@ class DEBUG_LEVEL(Enum):
   LOG = 'LOG'
 
 DATA_VERSION = "1.0"
-DATA_PATH = "data/testData/"
-FILE_PATH = "data/"
+# DATA_PATH = "data/testData/"
+DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/training/TRACKA/ground_truth/"
+# FILE_PATH = "data/"
+FILE_PATH = "/home/hungnguyen/ZhangLe/tabledetection/data/"
 COCODatasetFileName = 'coco.json'
 DEBUG_STATUS = DEBUG_LEVEL.DEBUG.value
 AID = 0
