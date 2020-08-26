@@ -115,12 +115,12 @@ def generateCoCoDataset():
   images = []
 
   files= os.listdir(DATA_PATH)
+  count = 0;
   for (index,file) in enumerate(files):
     imgfile = re.match(".*.xml$", file.lower())
     if (imgfile == None):
       (image) = createCocoItem(file, index)
       images.append(image)
-      count = 0;
       if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
         print(str(count) + ' ' + file + ' has been added into annotation json file...')
         count = count + 1;
