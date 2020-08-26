@@ -22,7 +22,7 @@ DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/training/TRACKA/groun
 # FILE_PATH = "data/"
 FILE_PATH = "/home/hungnguyen/ZhangLe/tabledetection/data/"
 COCODatasetFileName = 'coco.json'
-DEBUG_STATUS = DEBUG_LEVEL.DEBUG.value
+DEBUG_STATUS = DEBUG_LEVEL.LOG.value
 AID = 0
 annotations = []
 
@@ -120,9 +120,10 @@ def generateCoCoDataset():
     if (!imgfile):
       (image) = createCocoItem(file, index)
       images.append(image)
-      
+      count = 0;
       if (DEBUG_STATUS == DEBUG_LEVEL.LOG.value):
-        print(file + ' has been added into annotation json file...')
+        print(str(count) + ' ' + file + ' has been added into annotation json file...')
+        count = count + 1;
       if  (DEBUG_STATUS == DEBUG_LEVEL.DEBUG.value):
         temp = {}
         temp["images"] = images
