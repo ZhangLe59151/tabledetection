@@ -116,8 +116,8 @@ def generateCoCoDataset():
 
   files= os.listdir(DATA_PATH)
   for (index,file) in enumerate(files):
-    imgfile = re.match(".*.jpg$", file.lower())
-    if (imgfile):
+    imgfile = re.match(".*.xml$", file.lower())
+    if (!imgfile):
       (image) = createCocoItem(file, index)
       images.append(image)
       
