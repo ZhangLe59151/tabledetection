@@ -65,7 +65,7 @@ def createCocoItem(imgfilename, id):
   image["id"] = id
   image["width"] = imgsize["width"]   # to-do optimize 
   image["height"] = imgsize["height"]
-  image["filename"] = imgfilename
+  image["file_name"] = imgfilename
   image["license"] = 1
   image["flickr_url"] = ""
   image["coco_url"] = ""
