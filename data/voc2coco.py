@@ -18,11 +18,12 @@ class DEBUG_LEVEL(Enum):
 
 DATA_VERSION = "1.0"
 # DATA_PATH = "data/testData/"
-# DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/training/TRACKA/ground_truth/"
-DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/verify/"
+DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/training/TRACKA/ground_truth/"
+# DATA_PATH = "/home/hungnguyen/ZhangLe/data/ICDAR2019_cTDaR/verify/"
 # FILE_PATH = "data/"
 FILE_PATH = "/home/hungnguyen/ZhangLe/tabledetection/data/"
-COCODatasetFileName = 'coco_v.json'
+COCODatasetFileName = 'coco.json' 
+# COCODatasetFileName = 'coco_v.json' 
 DEBUG_STATUS = DEBUG_LEVEL.LOG.value
 AID = 0
 annotations = []
