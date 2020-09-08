@@ -9,6 +9,8 @@ import time, configparser
 import cv2, os, re, json, sys
 from configparser import ConfigParser
 
+ROOT_PATH = os.path.split(os.path.realpath(__file__))[0]
+
 class nodeType(Enum):
   ATTRIBUTE_NODE = 'ATTRIBUTE_NODE'
 
@@ -40,10 +42,10 @@ annotations = []
 # function to get param for bbox
 def getBbox(filename):
   # open the xml document
-  if  (getParameter('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.DEBUG.value):
+  if  (cfg.get('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.DEBUG.value):
     print("find name of getBbox: " + filename)
   cfilename = "";
-  dom = xml.dom.minidom.parse(getParameter('path', 'data_path') + filename)
+  dom = xml.dom.minidom.parse(cfg.get('path', 'data_path') + filename)
 
   # get the element
   root = dom.documentElement
@@ -52,6 +54,7 @@ def getBbox(filename):
 
   tables = root.getElementsByTagName("table")
   dataList = []
+  segmentationList = []
   for table in tables:
     Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
     # get x, y, width, height
@@ -65,6 +68,26 @@ def getBbox(filename):
     data["width"] = width
     data["height"] = height
     dataList.append(data)
+    x1 = int(Coord.split(' ')[0].split(',')[0])
+    y1 = int(Coord.split(' ')[0].split(',')[1])
+    v1 = 2
+    x2 = int(Coord.split(' ')[1].split(',')[0])
+    y2 = int(Coord.split(' ')[1].split(',')[1])
+    v2 = 2
+    x3 = int(Coord.split(' ')[2].split(',')[0])
+    y3 = int(Coord.split(' ')[2].split(',')[1])
+    v3 = 2
+    x4 = int(Coord.split(' ')[3].split(',')[0])
+    y4 = int(Coord.split(' ')[3].split(',')[1])
+    v4 = 2
+    keypoint = []
+    keypoint.append(x1).append(y1)
+    keypoint.append(v1)
+    keypoint.append(x2).append(y2).append(v2).append(x3).append(y3).append(v3).append(x4).append(y4).append(v4)
+    data["keypoint"] = keypoint
+    segmentation = []
+    segmentation.append(x1).append(y1).append(x2).append(y2).append(x3).append(y3).append(x4).append(y4)
+    data["segmentation"] = segmentation
   return dataList
 
 def createCocoItem(imgfilename, id):
@@ -90,14 +113,19 @@ def createCocoItem(imgfilename, id):
     AID = AID + 1
     annotation["image_id"] = id
     annotation["category_id"] = 0
-    annotation["area"] = 1
+    annotation["area"] = bbox["width"] * bbox["height"]
     annotation["bbox"] = [bbox["x"], bbox["y"], bbox["width"], bbox["height"]]
+    annotation["bbox_mode"] = 2
     annotation["iscrowd"] = 0
+    annotation["segmentation"] = [bbox["segmentation"]]
+    annotation["num_keypoints"] = len(bbox["keypoint"]) // 3
+    annotation["keypoints"] = bbox["keypoint"]
     annotations.append(annotation)
   return(image)
 
 def getImgSize(filename):
-  img = cv2.imread(getParameter('path', 'data_path') + filename)
+  img = cv2.imread(cfg.get('path', 'data_path') + filename)
+  print(cfg.get('path', 'data_path') + filename)
   (height, width, depth) = img.shape
   data = {}
   data["width"] = width
@@ -109,7 +137,7 @@ def generateCoCoDataset():
   # generate info 
   info = {}
   info["year"] = 2020
-  info["version"] = getParameter('version', 'DATA_VERSION')
+  info["version"] = cfg.get('version', 'DATA_VERSION')
   info["description"] = "description"
   info["contributor"] = "contributor"
   info["url"] = ""
@@ -125,17 +153,17 @@ def generateCoCoDataset():
 
   images = []
 
-  files= os.listdir(getParameter('path', 'data_path'))
+  files= os.listdir(cfg.get('path', 'data_path'))
   count = 0;
   for (index,file) in enumerate(files):
     imgfile = re.match(".*.xml$", file.lower())
     if (imgfile == None):
       (image) = createCocoItem(file, index)
       images.append(image)
-      if (getParameter('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.LOG.value):
+      if (cfg.get('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.LOG.value):
         print(str(count) + ' ' + file + ' has been added into annotation json file...')
         count = count + 1;
-      if  (getParameter('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.DEBUG.value):
+      if  (cfg.get('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.DEBUG.value):
         temp = {}
         temp["images"] = images
         print(file + ':')
@@ -152,10 +180,10 @@ def generateCoCoDataset():
   writeToFile(data)
 
 def writeToFile(data):
-  with open(getParameter('path', 'FILE_PATH') + getParameter('path', 'COCODatasetFileName'), 'w') as f:
+  with open(cfg.get('path', 'FILE_PATH') + cfg.get('path', 'COCODatasetFileName'), 'w') as f:
     json.dump(data, f)
-    if (getParameter('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.LOG.value):
-      print('data has been written into file : ' + getParameter('path', 'FILE_PATH') + getParameter('path', 'COCODatasetFileName'))
+    if (cfg.get('debug', 'DEBUG_LEVEL') == DEBUG_LEVEL.LOG.value):
+      print('data has been written into file : ' + cfg.get('path', 'FILE_PATH') + cfg.get('path', 'COCODatasetFileName'))
 
 # main function 
 # write the config file
@@ -163,12 +191,14 @@ data_path = input("input data path for image data and annotation:\n")
 file_path = input("input coco file path:\n")
 file_name = input("input coco file name: for example : coco.json:\n")
 cfg = ConfigParser()
-cfg.read('config.ini')
+configPath = os.path.join(ROOT_PATH, 'config1.ini')
+cfg.read(configPath)
 cfg.set('path', 'data_path', data_path)
 cfg.set('path', 'file_path', file_path)
 cfg.set('path', 'COCODatasetFileName', file_name)
+# cfg.set('version', 'DATA_VERSION', '1.0')
 cfg.write(sys.stdout)
-a = cfg.get('path', 'data_path')
+a = cfg.get('version', 'DATA_VERSION')
 print(a)
 
 generateCoCoDataset()
