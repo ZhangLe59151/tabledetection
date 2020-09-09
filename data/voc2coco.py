@@ -128,7 +128,7 @@ def createCocoItem(imgfilename, id):
     annotation["id"] = AID
     AID = AID + 1
     annotation["image_id"] = id
-    annotation["category_id"] = 0
+    annotation["category_id"] = 1
     annotation["area"] = bbox["width"] * bbox["height"]
     annotation["bbox"] = [bbox["x"], bbox["y"], bbox["width"], bbox["height"]]
     annotation["bbox_mode"] = 2
@@ -162,7 +162,7 @@ def generateCoCoDataset():
   # generate category
   categories = []
   category = {}
-  category["id"] = 0
+  category["id"] = 1
   category["name"] = "table"
   category["supercategory"] = "table"
   categories.append(category)
