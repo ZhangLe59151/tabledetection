@@ -91,38 +91,15 @@ def getBbox(filename):
     dataList.append(data)
     keypoint = []
     segmentation = []
-    x1 = int(Coord.split(' ')[0].split(',')[0])
-    keypoint.append(x1)
-    segmentation.append(x1)
-    y1 = int(Coord.split(' ')[0].split(',')[1])
-    keypoint.append(y1)
-    segmentation.append(y1)
-    v1 = 2
-    keypoint.append(v1)
-    x2 = int(Coord.split(' ')[1].split(',')[0])
-    keypoint.append(x2)
-    segmentation.append(x2)
-    y2 = int(Coord.split(' ')[1].split(',')[1])
-    keypoint.append(y2)
-    segmentation.append(y2)
-    v2 = 2
-    keypoint.append(v2)
-    x3 = int(Coord.split(' ')[2].split(',')[0])
-    keypoint.append(x3)
-    segmentation.append(x3)
-    y3 = int(Coord.split(' ')[2].split(',')[1])
-    keypoint.append(y3)
-    segmentation.append(y3)
-    v3 = 2
-    keypoint.append(v3)
-    x4 = int(Coord.split(' ')[3].split(',')[0])
-    keypoint.append(x4)
-    segmentation.append(x4)
-    y4 = int(Coord.split(' ')[3].split(',')[1])
-    keypoint.append(y4)
-    segmentation.append(y4)
-    v4 = 2
-    keypoint.append(v4)
+    for item in Coord.split(' '):
+      kx = int(item.split(',')[0])
+      keypoint.append(kx)
+      segmentation.append(kx)
+      ky = int(item.split(',')[1])
+      keypoint.append(ky)
+      segmentation.append(ky)
+      v = 2
+      keypoint.append(v)
     data["keypoint"] = keypoint
     data["segmentation"] = segmentation
   return dataList
