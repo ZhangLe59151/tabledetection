@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# /Users/zhangle/Documents/IS/tabledetection/
 # FILE_PATH = "data/"
 FILE_PATH = "/home/hungnguyen/ZhangLe/tabledetection/data/"
 # DATA_PATH = "data/testData/"

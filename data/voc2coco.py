@@ -55,13 +55,34 @@ def getBbox(filename):
   tables = root.getElementsByTagName("table")
   dataList = []
   segmentationList = []
+
+  def getMaxXY(itemList):
+    maxX = 0
+    maxY = 0
+    for item in itemList:
+      if int(item.split(',')[0]) > maxX:
+        maxX = int(item.split(',')[0])
+      if int(item.split(',')[1]) > maxY:
+        maxY = int(item.split(',')[1])
+    return maxX, maxY
+  
+  def getMinXY(itemList):
+    minX = itemList[0].split(',')[0]
+    minY = itemList[0].split(',')[1]
+    for item in itemList:
+      if int(item.split(',')[0]) < minX:
+        maxX = int(item.split(',')[0])
+      if int(item.split(',')[1]) < minY:
+        maxY = int(item.split(',')[1])
+    return minX, minY
+  
   for table in tables:
     Coord = table.getElementsByTagName("Coords")[0].getAttribute("points")
     # get x, y, width, height
-    x = min([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])])
-    y = min([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])])
-    width = max([int(Coord.split(' ')[0].split(',')[0]), int(Coord.split(' ')[1].split(',')[0]), int(Coord.split(' ')[2].split(',')[0]), int(Coord.split(' ')[3].split(',')[0])]) - x
-    height = max([int(Coord.split(' ')[0].split(',')[1]), int(Coord.split(' ')[1].split(',')[1]), int(Coord.split(' ')[2].split(',')[1]), int(Coord.split(' ')[3].split(',')[1])]) - y
+    xmax, ymax  = getMaxXY(Coord.split(' '))
+    x, y = getMinXY(Coord.split(' '))
+    width = xmax - x
+    height = ymax - y
     data = {}
     data["x"] = x
     data["y"] = y
