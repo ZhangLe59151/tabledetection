@@ -67,8 +67,8 @@ def getBbox(filename):
     return maxX, maxY
   
   def getMinXY(itemList):
-    minX = itemList[0].split(',')[0]
-    minY = itemList[0].split(',')[1]
+    minX = int(itemList[0].split(',')[0])
+    minY = int(itemList[0].split(',')[1])
     for item in itemList:
       if int(item.split(',')[0]) < minX:
         maxX = int(item.split(',')[0])
